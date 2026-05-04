@@ -1,0 +1,47 @@
+# Dependencies (rebuilt inside Docker)
+app/node_modules
+server/node_modules
+node_modules
+
+# Build outputs (rebuilt inside Docker)
+app/dist
+server/dist
+
+# Environment files (set via Coolify UI instead)
+.env
+.env.local
+app/.env
+server/.env
+
+# Logs
+*.log
+npm-debug.log*
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode
+.idea
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker files themselves (no recursion)
+# Note: we DO need the Dockerfile and docker/ directory — don't exclude those
+
+# Random standalone files at project root
+node.exe
+nodevars.bat
+corepack
+corepack.cmd
+npm
+npm.cmd
+npm.ps1
+npx
+npx.cmd
+npx.ps1
+install_tools.bat
+deploy_agent.py

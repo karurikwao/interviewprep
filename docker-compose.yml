@@ -1,0 +1,53 @@
+# ============================================================================
+# InterviewReady — docker-compose.yml (All-in-One)
+# ============================================================================
+# For Coolify: import as "Docker Compose" project.
+#   - Set environment variables in Coolify UI
+#   - Set your domain in Coolify UI → Domains tab
+#   - Click Deploy — that's it!
+#
+# For local testing: copy .env.example to .env, then:
+#   docker compose up --build
+#   Open http://localhost in your browser
+# ============================================================================
+
+services:
+  # ─── PostgreSQL Database ─────────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-irapp}
+      POSTGRES_PASSWORD: ${DB_PASS:-irlocaldev123}
+      POSTGRES_DB: ${DB_NAME:-interviewready}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-irapp}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ─── App (Frontend + Backend + Nginx — all in one) ──────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-80}:80"
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-irapp}:${DB_PASS:-irlocaldev123}@db:5432/${DB_NAME:-interviewready}?schema=public
+      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-abc123}
+      RESEND_API_KEY: ${RESEND_API_KEY:-re_xxxxxxxxxxxx}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@interviewready.app}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@interviewready.app}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:
