@@ -47,8 +47,8 @@ RUN apk add --no-cache nginx openssl supervisor
 
 # --- Nginx setup ---
 RUN mkdir -p /run/nginx
-RUN rm -f /etc/nginx/httpd/default.conf
-COPY docker/nginx.conf /etc/nginx/httpd/default.conf
+RUN rm -f /etc/nginx/http.d/default.conf
+COPY docker/nginx.conf /etc/nginx/http.d/default.conf
 
 # Frontend static files (from Stage 1)
 COPY --from=frontend-builder /frontend/dist /usr/share/nginx/html
