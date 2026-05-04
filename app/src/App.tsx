@@ -26,7 +26,7 @@ import { ResetPasswordPage } from '@/pages/ResetPasswordPage';
 import type { Topic } from '@/data/topics';
 import './App.css';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 function HomePage() {
   const [showAdmin, setShowAdmin] = useState(false);

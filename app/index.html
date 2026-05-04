@@ -23,7 +23,7 @@
   <script>
   (function(){
     try {
-      var api = window.__VITE_API_URL__ || 'http://localhost:3001/api';
+      var api = '/api';
       fetch(api + '/admin/settings').then(function(r){return r.json()}).then(function(s){
         if(s.siteVerificationSnippets){
           var snippets = JSON.parse(s.siteVerificationSnippets);

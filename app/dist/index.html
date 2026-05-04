@@ -23,7 +23,7 @@
   <script>
   (function(){
     try {
-      var api = window.__VITE_API_URL__ || 'http://localhost:3001/api';
+      var api = '/api';
       fetch(api + '/admin/settings').then(function(r){return r.json()}).then(function(s){
         if(s.siteVerificationSnippets){
           var snippets = JSON.parse(s.siteVerificationSnippets);
@@ -55,7 +55,7 @@
         });
       }
     </script>
-    <script type="module" crossorigin src="/assets/index-C7f0QpY4.js"></script>
+    <script type="module" crossorigin src="/assets/index-6yh5ORn9.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-BB2s9ACO.css">
   </head>
   <body>
