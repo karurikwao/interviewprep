@@ -6,7 +6,16 @@ import { generateToken, authMiddleware } from '../middleware/auth.js';
 import { Resend } from 'resend';
 
 const router = Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: InstanceType<typeof Resend> | null = null;
+function getResend(): InstanceType<typeof Resend> {
+  if (!_resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error('RESEND_API_KEY not configured');
+    }
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 router.post('/register', async (req, res) => {
   try {
@@ -85,12 +94,17 @@ router.post('/forgot-password', async (req, res) => {
     await prisma.passwordReset.create({ data: { userId: user.id, token, expiresAt } });
 
     const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await resend.emails.send({
-      from: process.env.EMAIL_FROM!,
-      to: user.email,
-      subject: 'InterviewReady — Password Reset',
-      html: `<p>You requested a password reset.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>`,
-    });
+    try {
+      const resend = getResend();
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+        to: user.email,
+        subject: 'InterviewReady — Password Reset',
+        html: `<p>You requested a password reset.</p><p><a href="${resetUrl}">Click here to reset your password</a></p><p>This link expires in 1 hour. If you didn't request this, ignore this email.</p>`,
+      });
+    } catch (mailErr: any) {
+      console.error('Email send failed:', mailErr.message);
+    }
 
     res.json({ message: 'If an account with that email exists, a reset link has been sent.' });
   } catch (err: any) {
