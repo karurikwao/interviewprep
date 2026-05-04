@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="background-color" content="#ffffff" />
+    <meta name="description" content="Free comprehensive practice resources for couples preparing for marriage-based immigration interviews" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="InterviewReady" />
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="./manifest.json" />
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="192x192" href="./icons/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="./icons/icon-192x192.png" />
+    
+  <title>InterviewReady - Immigration Interview Practice</title>
+
+  <!-- Site Verification Snippets (injected by admin settings) -->
+  <script>
+  (function(){
+    try {
+      var api = window.__VITE_API_URL__ || 'http://localhost:3001/api';
+      fetch(api + '/admin/settings').then(function(r){return r.json()}).then(function(s){
+        if(s.siteVerificationSnippets){
+          var snippets = JSON.parse(s.siteVerificationSnippets);
+          Object.values(snippets).forEach(function(code){
+            if(code && typeof code === 'string'){
+              var el = document.createElement('div');
+              el.style.display = 'none';
+              el.innerHTML = code;
+              document.head.appendChild(el);
+            }
+          });
+        }
+      }).catch(function(){});
+    } catch(e){}
+  })();
+  </script>
+
+  <!-- Service Worker Registration -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+              console.log('SW registered:', registration);
+            })
+            .catch((error) => {
+              console.log('SW registration failed:', error);
+            });
+        });
+      }
+    </script>
+    <script type="module" crossorigin src="/assets/index-C7f0QpY4.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BB2s9ACO.css">
+  </head>
+  <body>
+    <div id="root"></div>
+  </body>
+</html>
