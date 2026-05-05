@@ -1,53 +1,64 @@
 # ============================================================================
-# InterviewReady — docker-compose.yml (All-in-One)
+# InterviewReady — Docker Compose (Coolify-ready)
 # ============================================================================
-# For Coolify: import as "Docker Compose" project.
-#   - Set environment variables in Coolify UI
-#   - Set your domain in Coolify UI → Domains tab
-#   - Click Deploy — that's it!
 #
-# For local testing: copy .env.example to .env, then:
+# COOLIFY DEPLOY (recommended):
+#   1. Push this repo to GitHub/GitLab
+#   2. In Coolify: + New Resource → Docker Compose → connect repo
+#   3. Set env vars in Coolify → Environment tab (see below)
+#   4. Click Deploy — Coolify builds, runs, and SSL-configures everything
+#
+# LOCAL TESTING:
+#   Copy .env.example to .env, edit values, then:
 #   docker compose up --build
 #   Open http://localhost in your browser
+#
+# REQUIRED ENV VARS (Coolify → Environment tab):
+#   JWT_SECRET       — 32+ char random string
+#   ADMIN_EMAIL      — your admin login email
+#   ADMIN_PASSWORD   — strong password for admin login
+#
+# OPTIONAL:
+#   DB_USER / DB_PASS / DB_NAME  — database creds (defaults: irapp / changeme123 / interviewready)
+#   RESEND_API_KEY   — from resend.com (for password reset emails only)
+#   EMAIL_FROM       — sender email for reset emails
+#   FRONTEND_URL     — your site URL (Coolify auto-domain or custom domain)
+#
 # ============================================================================
 
 services:
-  # ─── PostgreSQL Database ─────────────────────────────────────────────────
   db:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${DB_USER:-irapp}
-      POSTGRES_PASSWORD: ${DB_PASS:-irlocaldev123}
+      POSTGRES_PASSWORD: ${DB_PASS:-changeme123}
       POSTGRES_DB: ${DB_NAME:-interviewready}
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-irapp}"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  # ─── App (Frontend + Backend + Nginx — all in one) ──────────────────────
   app:
     build:
       context: .
       dockerfile: Dockerfile
     restart: unless-stopped
-    ports:
-      - "${APP_PORT:-80}:80"
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${DB_USER:-irapp}:${DB_PASS:-irlocaldev123}@db:5432/${DB_NAME:-interviewready}?schema=public
-      JWT_SECRET: ${JWT_SECRET:-change-me-in-production-abc123}
-      RESEND_API_KEY: ${RESEND_API_KEY:-re_xxxxxxxxxxxx}
-      EMAIL_FROM: ${EMAIL_FROM:-noreply@interviewready.app}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@interviewready.app}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
     depends_on:
       db:
         condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-irapp}:${DB_PASS:-changeme123}@db:5432/${DB_NAME:-interviewready}?schema=public
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET is required - set a 32+ char random string}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@interviewready.app}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-ChangeMe123!}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAIL_FROM: ${EMAIL_FROM:-noreply@interviewready.app}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
 
 volumes:
-  pgdata:
+  db-data:
