@@ -8,18 +8,30 @@ echo "============================================"
 # ─── Database Migrations ────────────────────────────────────────────────
 if [ -n "$DATABASE_URL" ]; then
   echo ""
-  echo "[1/3] Running database migrations..."
+  echo "[1/3] Preparing database schema..."
   cd /app
-  npx prisma migrate deploy 2>&1 || {
-    echo "WARNING: prisma migrate deploy failed."
-    echo "Attempting prisma db push instead..."
-    npx prisma db push --accept-data-loss 2>&1 || {
-      echo "WARNING: prisma db push also failed."
-      echo "The database may not be ready yet. The server will start anyway."
-      echo "You can run migrations manually later."
+
+  if [ -d "prisma/migrations" ] && find prisma/migrations -mindepth 1 -maxdepth 1 -type d | grep -q .; then
+    echo "Prisma migrations found; running prisma migrate deploy..."
+    npx prisma migrate deploy 2>&1 || {
+      echo "WARNING: prisma migrate deploy failed."
+      echo "Attempting prisma db push instead..."
+      npx prisma db push --accept-data-loss 2>&1 || {
+        echo "WARNING: prisma db push also failed."
+        echo "The database may not be ready yet. The server will start anyway."
+        echo "You can run migrations manually later."
+      }
     }
-  }
-  echo "Migrations done."
+  else
+    echo "No Prisma migration files found; applying schema with prisma db push..."
+    npx prisma db push --accept-data-loss 2>&1 || {
+      echo "WARNING: prisma db push failed."
+      echo "The database may not be ready yet. The server will start anyway."
+      echo "You can sync the schema manually later."
+    }
+  fi
+
+  echo "Database schema ready."
 
   # ─── Seed (first run only) ───────────────────────────────────────────
   echo ""
